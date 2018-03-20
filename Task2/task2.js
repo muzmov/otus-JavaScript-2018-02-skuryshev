@@ -2,11 +2,7 @@ function getPath(elem) {
     var selector = "";
     while (elem.parentElement !== document.body) {
         var elemParent = elem.parentElement;
-        for (var i = 0; i < elemParent.children.length; i++) {
-            if (elemParent.children[i] === elem) {
-                selector = ":nth-child(" + (i + 1) + ") " + selector;
-            }
-        }
+        selector = ":nth-child(" + ( [].indexOf.call(elemParent.children, elem) + 1) + ") " + selector;
         elem = elemParent;
     }
     selector = "body " + selector;
@@ -20,10 +16,19 @@ var found = document.querySelector(selector);
 console.log(requred === found);
 
 function promiseReduce(promises, reduce, initial) {
-    return Promise.all(promises).then(values => {
+    return new Promise((resolve, reject) => {
         var result = initial;
-        values.forEach(v => result = reduce(result, v));
-        return result;
+        var unprocessed = promises.length;
+        if (unprocessed === 0) resolve(result);
+        promises.forEach(p => p.then(res => {
+                result = reduce(result, res);
+                done();
+            })
+        );
+
+        function done() {
+            if (--unprocessed === 0) resolve(result);
+        }
     });
 }
 
@@ -36,4 +41,4 @@ promiseReduce(
     (a, b) => a + b,
     0
 )
-.then(res => console.log(res))
+    .then(res => console.log(res))
