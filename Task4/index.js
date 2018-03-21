@@ -32,6 +32,10 @@ function read(dir, done) {
 const dir = process.argv[2] || 'node_modules';
 
 read(dir, (err, res) => {
+    if (err) {
+        console.log(err);
+        return;
+    }
     console.log("files:");
     res.files.forEach(f => console.log(f));
     console.log("dirs:");
